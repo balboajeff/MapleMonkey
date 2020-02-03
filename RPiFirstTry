@@ -1,0 +1,51 @@
+PrintWriter output;
+import processing.serial.*;
+
+Serial myPort;  // Create object from Serial class
+int val;        // Data received from the serial port
+int inData;
+int startTime=1;
+boolean latch=true;
+void setup() {
+  
+   // I know that the first port in the serial list on my mac
+  // is always my  FTDI adaptor, so I open Serial.list()[0].
+  // On Windows machines, this generally opens COM1.
+  // Open whatever port is the one you're using.
+  String portName = Serial.list()[0];
+  myPort = new Serial(this, "/dev/ttyUSB0", 9600);
+  
+  // Create a new file in the sketch directory
+  output = createWriter("positions.txt"); 
+  
+}
+
+void draw() {
+ if( myPort.read()>0)
+ {
+   inData=myPort.read();
+   print(inData);
+ }
+  point(mouseX, mouseY);
+  output.println(mouseX);  // Write the coordinate to the file
+  background(255);
+writeA();
+println(second());
+}
+void keyPressed() {
+  output.flush();  // Writes the remaining data to the file
+  output.close();  // Finishes the file
+  exit();  // Stops the program
+}
+void writeA() { 
+   if (second()==15&& latch==true||second()==30&& latch==true||second()==45&& latch==true||second()==1&& latch==true) 
+  {  // If mouse is over square,
+  
+    myPort.write('a');              // send an H to indicate mouse is over square
+   latch=false; 
+}
+if (second()==16||second()==31||second()==46||second()==2)
+{
+  latch=true;
+}
+}
